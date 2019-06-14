@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Gegenereerd op: 14 jun 2019 om 10:07
+-- Gegenereerd op: 14 jun 2019 om 10:14
 -- Serverversie: 10.2.22-MariaDB
 -- PHP-versie: 7.0.33
 
@@ -11,12 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
-
---
--- Database: `sonder_cmx44`
---
-
--- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `acl`
@@ -125,6 +119,17 @@ CREATE TABLE `eigenaar` (
 
 CREATE TABLE `eigenaarstatus` (
   `idEigenaarstatus` int(11) NOT NULL,
+  `Naam` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `rol`
+--
+
+CREATE TABLE `rol` (
+  `idRol` int(11) NOT NULL,
   `Naam` varchar(45) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -251,6 +256,12 @@ ALTER TABLE `eigenaarstatus`
   ADD PRIMARY KEY (`idEigenaarstatus`);
 
 --
+-- Indexen voor tabel `rol`
+--
+ALTER TABLE `rol`
+  ADD PRIMARY KEY (`idRol`);
+
+--
 -- Indexen voor tabel `structuur`
 --
 ALTER TABLE `structuur`
@@ -320,6 +331,12 @@ ALTER TABLE `eigenaar`
 --
 ALTER TABLE `eigenaarstatus`
   MODIFY `idEigenaarstatus` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `rol`
+--
+ALTER TABLE `rol`
+  MODIFY `idRol` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT voor een tabel `structuur`
