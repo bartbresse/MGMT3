@@ -388,3 +388,17 @@ ALTER TABLE `eigenaar`
   ADD CONSTRAINT `fk_Eigenaar_rol1` FOREIGN KEY (`Rol_idRol`) REFERENCES `rol` (`idRol`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_eigenaar_taal1` FOREIGN KEY (`Taal_idTaal`) REFERENCES `taal` (`idTaal`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
+
+
+
+
+CREATE TABLE `language` (
+  `idLanguage` int(11) NOT NULL,
+  `Dutch` varchar(45) DEFAULT NULL,
+  `English` varchar(45) DEFAULT NULL,
+  `German` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `language`
+  MODIFY `idLanguage` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=173;
+
