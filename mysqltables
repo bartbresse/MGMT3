@@ -1,0 +1,373 @@
+-- phpMyAdmin SQL Dump
+-- version 4.8.5
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost
+-- Gegenereerd op: 14 jun 2019 om 10:07
+-- Serverversie: 10.2.22-MariaDB
+-- PHP-versie: 7.0.33
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+--
+-- Database: `sonder_cmx44`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `acl`
+--
+
+CREATE TABLE `acl` (
+  `idAcl` int(11) NOT NULL,
+  `Eigenaar_idEigenaar` int(11) NOT NULL,
+  `Structuurtable_idStructuurtable` int(11) NOT NULL,
+  `Read` tinyint(1) DEFAULT NULL,
+  `Create` tinyint(1) DEFAULT NULL,
+  `Update` tinyint(1) DEFAULT NULL,
+  `Delete` tinyint(1) DEFAULT NULL,
+  `Entityid` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `action`
+--
+
+CREATE TABLE `action` (
+  `idAction` int(11) NOT NULL,
+  `label` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `entity` varchar(255) NOT NULL,
+  `entityid` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `audit`
+--
+
+CREATE TABLE `audit` (
+  `idAudit` int(11) NOT NULL,
+  `Oldrow` text DEFAULT NULL,
+  `Newrow` text NOT NULL,
+  `Structuurtable_idStructuurtable` int(11) NOT NULL,
+  `Createdat` datetime NOT NULL DEFAULT current_timestamp(),
+  `Lastedit` datetime NOT NULL DEFAULT current_timestamp(),
+  `Eigenaar_idEigenaar` int(11) NOT NULL,
+  `Action` varchar(45) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `document`
+--
+
+CREATE TABLE `document` (
+  `idDocument` int(11) NOT NULL,
+  `Naam` varchar(45) DEFAULT NULL,
+  `Documentsoort_idDocumentsoort` int(11) DEFAULT NULL,
+  `Versie` varchar(45) DEFAULT NULL,
+  `Opmerking` text DEFAULT NULL,
+  `Path` varchar(255) NOT NULL,
+  `Eigenaar_idEigenaar` int(11) NOT NULL,
+  `Createdat` datetime NOT NULL DEFAULT current_timestamp(),
+  `Lastedit` datetime NOT NULL DEFAULT current_timestamp(),
+  `Deletedat` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `documentsoort`
+--
+
+CREATE TABLE `documentsoort` (
+  `idDocumentsoort` int(11) NOT NULL,
+  `Naam` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `eigenaar`
+--
+
+CREATE TABLE `eigenaar` (
+  `idEigenaar` int(11) NOT NULL,
+  `Voornaam` varchar(45) NOT NULL,
+  `Achternaam` varchar(45) NOT NULL,
+  `Telefoon` varchar(45) NOT NULL,
+  `Email` varchar(45) DEFAULT NULL,
+  `Rol_idRol` int(11) DEFAULT NULL,
+  `Eigenaarstatus_idEigenaarstatus` int(11) DEFAULT NULL,
+  `Password` varchar(255) NOT NULL,
+  `Taal_idTaal` int(11) DEFAULT NULL,
+  `Createdat` datetime NOT NULL DEFAULT current_timestamp(),
+  `Lastedit` datetime NOT NULL DEFAULT current_timestamp(),
+  `Deletedat` datetime DEFAULT NULL,
+  `Token` text DEFAULT NULL,
+  `Logo` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `eigenaarstatus`
+--
+
+CREATE TABLE `eigenaarstatus` (
+  `idEigenaarstatus` int(11) NOT NULL,
+  `Naam` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `structuur`
+--
+
+CREATE TABLE `structuur` (
+  `idStructuur` int(11) NOT NULL,
+  `name` varchar(45) DEFAULT NULL,
+  `title` varchar(45) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `placeholder` varchar(45) DEFAULT NULL,
+  `type` varchar(45) DEFAULT NULL,
+  `field` varchar(45) DEFAULT NULL,
+  `tabel` varchar(45) DEFAULT NULL,
+  `sel` int(1) DEFAULT NULL COMMENT 'column relations in order if there is no name column',
+  `visibleindetail` int(1) DEFAULT 1,
+  `visibleintable` varchar(45) DEFAULT '1',
+  `attr` text DEFAULT NULL,
+  `cssclass` varchar(255) DEFAULT NULL COMMENT 'class in html form',
+  `istablefield` tinyint(1) NOT NULL DEFAULT 1,
+  `defaultvalue` varchar(45) DEFAULT NULL,
+  `addinform` tinyint(4) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `structuurtable`
+--
+
+CREATE TABLE `structuurtable` (
+  `idstructuurtable` int(11) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `sqltable` varchar(45) DEFAULT NULL,
+  `savebuttontext` varchar(45) DEFAULT NULL,
+  `cancelbuttontext` varchar(45) DEFAULT NULL,
+  `fieldsinform` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `taal`
+--
+
+CREATE TABLE `taal` (
+  `idTaal` int(11) NOT NULL,
+  `Naam` varchar(45) NOT NULL,
+  `Code` varchar(45) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `usersession`
+--
+
+CREATE TABLE `usersession` (
+  `idusersession` int(11) NOT NULL,
+  `Creationtime` datetime NOT NULL,
+  `Sessioncode` varchar(255) NOT NULL,
+  `Eigenaar_idEigenaar` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexen voor geëxporteerde tabellen
+--
+
+--
+-- Indexen voor tabel `acl`
+--
+ALTER TABLE `acl`
+  ADD PRIMARY KEY (`idAcl`),
+  ADD KEY `fk_acl_eigenaar1_idx` (`Eigenaar_idEigenaar`),
+  ADD KEY `fk_acl_structuurtable1_idx` (`Structuurtable_idStructuurtable`);
+
+--
+-- Indexen voor tabel `action`
+--
+ALTER TABLE `action`
+  ADD PRIMARY KEY (`idAction`);
+
+--
+-- Indexen voor tabel `audit`
+--
+ALTER TABLE `audit`
+  ADD PRIMARY KEY (`idAudit`),
+  ADD KEY `fk_audit_structuurtable1_idx` (`Structuurtable_idStructuurtable`),
+  ADD KEY `fk_audit_eigenaar1_idx` (`Eigenaar_idEigenaar`);
+
+--
+-- Indexen voor tabel `document`
+--
+ALTER TABLE `document`
+  ADD PRIMARY KEY (`idDocument`),
+  ADD KEY `fk_Document_Documentsoort1_idx` (`Documentsoort_idDocumentsoort`),
+  ADD KEY `fk_document_eigenaar1_idx` (`Eigenaar_idEigenaar`);
+
+--
+-- Indexen voor tabel `documentsoort`
+--
+ALTER TABLE `documentsoort`
+  ADD PRIMARY KEY (`idDocumentsoort`);
+
+--
+-- Indexen voor tabel `eigenaar`
+--
+ALTER TABLE `eigenaar`
+  ADD PRIMARY KEY (`idEigenaar`),
+  ADD UNIQUE KEY `Email_UNIQUE` (`Email`),
+  ADD KEY `fk_Eigenaar_rol1_idx` (`Rol_idRol`),
+  ADD KEY `fk_Eigenaar_Status1_idx` (`Eigenaarstatus_idEigenaarstatus`),
+  ADD KEY `fk_eigenaar_taal1_idx` (`Taal_idTaal`);
+
+--
+-- Indexen voor tabel `eigenaarstatus`
+--
+ALTER TABLE `eigenaarstatus`
+  ADD PRIMARY KEY (`idEigenaarstatus`);
+
+--
+-- Indexen voor tabel `structuur`
+--
+ALTER TABLE `structuur`
+  ADD PRIMARY KEY (`idStructuur`);
+
+--
+-- Indexen voor tabel `structuurtable`
+--
+ALTER TABLE `structuurtable`
+  ADD PRIMARY KEY (`idstructuurtable`);
+
+--
+-- Indexen voor tabel `taal`
+--
+ALTER TABLE `taal`
+  ADD PRIMARY KEY (`idTaal`);
+
+--
+-- Indexen voor tabel `usersession`
+--
+ALTER TABLE `usersession`
+  ADD PRIMARY KEY (`idusersession`),
+  ADD KEY `fk_usersession_eigenaar1_idx` (`Eigenaar_idEigenaar`);
+
+--
+-- AUTO_INCREMENT voor geëxporteerde tabellen
+--
+
+--
+-- AUTO_INCREMENT voor een tabel `acl`
+--
+ALTER TABLE `acl`
+  MODIFY `idAcl` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `action`
+--
+ALTER TABLE `action`
+  MODIFY `idAction` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `audit`
+--
+ALTER TABLE `audit`
+  MODIFY `idAudit` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `document`
+--
+ALTER TABLE `document`
+  MODIFY `idDocument` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `documentsoort`
+--
+ALTER TABLE `documentsoort`
+  MODIFY `idDocumentsoort` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `eigenaar`
+--
+ALTER TABLE `eigenaar`
+  MODIFY `idEigenaar` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `eigenaarstatus`
+--
+ALTER TABLE `eigenaarstatus`
+  MODIFY `idEigenaarstatus` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `structuur`
+--
+ALTER TABLE `structuur`
+  MODIFY `idStructuur` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `structuurtable`
+--
+ALTER TABLE `structuurtable`
+  MODIFY `idstructuurtable` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `taal`
+--
+ALTER TABLE `taal`
+  MODIFY `idTaal` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT voor een tabel `usersession`
+--
+ALTER TABLE `usersession`
+  MODIFY `idusersession` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Beperkingen voor geëxporteerde tabellen
+--
+
+--
+-- Beperkingen voor tabel `audit`
+--
+ALTER TABLE `audit`
+  ADD CONSTRAINT `fk_audit_eigenaar1` FOREIGN KEY (`Eigenaar_idEigenaar`) REFERENCES `eigenaar` (`idEigenaar`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_audit_structuurtable1` FOREIGN KEY (`Structuurtable_idStructuurtable`) REFERENCES `structuurtable` (`idstructuurtable`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Beperkingen voor tabel `document`
+--
+ALTER TABLE `document`
+  ADD CONSTRAINT `fk_Document_Documentsoort1` FOREIGN KEY (`Documentsoort_idDocumentsoort`) REFERENCES `documentsoort` (`idDocumentsoort`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_document_eigenaar1` FOREIGN KEY (`Eigenaar_idEigenaar`) REFERENCES `eigenaar` (`idEigenaar`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Beperkingen voor tabel `eigenaar`
+--
+ALTER TABLE `eigenaar`
+  ADD CONSTRAINT `fk_Eigenaar_Status1` FOREIGN KEY (`Eigenaarstatus_idEigenaarstatus`) REFERENCES `eigenaarstatus` (`idEigenaarstatus`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Eigenaar_rol1` FOREIGN KEY (`Rol_idRol`) REFERENCES `rol` (`idRol`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_eigenaar_taal1` FOREIGN KEY (`Taal_idTaal`) REFERENCES `taal` (`idTaal`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+COMMIT;
