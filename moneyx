@@ -1,0 +1,38 @@
+<template>
+    <div class="el-input el-input--mini">
+        <input class="el-input__inner" v-model.lazy="inputVal.value" v-money="money" />
+    </div>
+</template>
+<script>
+import { VMoney } from 'v-money'
+
+export default {
+  props: ['value'],
+  directives: { money: VMoney },
+  data () {
+    return {
+      inputVal: this.value,
+      money: {
+        decimal: ',',
+        thousands: '.',
+        prefix: '€ ',
+        suffix: '',
+        precision: 2,
+        masked: false /* doesn't work with directive */
+      }
+    }
+  },
+  mounted: function () {
+  },
+  methods: {
+    onChange: function (e) {
+    }
+  }
+}
+</script>
+<style>
+    .periode {
+        max-width: 300px;
+
+    }
+</style>
