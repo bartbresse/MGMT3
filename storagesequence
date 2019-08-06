@@ -1,0 +1,30 @@
+ foreach ($postData as $index => $data) {
+
+                $name = ucfirst($index);
+                //TODO: fix document handling
+                if ($name != 'Document') {
+                    //if you try to store empty relations SQL:1452 will occur
+                    if (isset($data['value']) && !is_array($data['value']) && strlen($data['value']) > 0) {
+                        //boolean values need to be trans
+                        if($data['type'] == 'money')
+                        {
+                            $money = explode(' ',$data['value']);
+                            $data['value'] = floatval(str_replace(',', '.', str_replace('.', '', $money[1])));
+                        } else if($data['type'] == 'switch'){
+                            if($data['value'] === true)
+                            {
+                                $data['value'] = 1;
+                            }
+                        }
+
+                        $en->$name = $data['value'];
+                    } else if (isset($data['value']) && is_array($data['value']) && count($data['value']) > 0) {
+                        //TODO: figure out if we need to save arrays
+                    }
+
+                    if($data['type'] == 'switch' && $data['value'] == false)
+                    {
+                        $en->$name = '0';
+                    }
+                }
+            }
