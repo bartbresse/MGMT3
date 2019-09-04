@@ -1,0 +1,37 @@
+//formjsonhandler
+else if (strpos($field['Field'], 'xid') !== false) {
+                        $foreign = explode('xid', $field['Field']);
+                        $key = ucfirst($foreign[1]);
+                        //custom relationships go to else
+                        $f['type'] = 'multivalue';
+                        if(isset($f['value'])) {
+                            $f['value'] = explode(',',$f['value']);
+                        }
+                        $f['enum'] = $this->getSelectList($key);
+                        $f['entity'] = strtolower($key);
+
+                    } 
+                    
+                    
+                    //tablejsonhandler
+                    $exx = explode('xid', $index);
+                    
+                    
+                    else if(isset($exx[1])){ //TODO: comma seperated relationships
+                    $entityname = ucfirst($exx[0]);
+
+                    $explode = explode(',',$field);
+                    $str = 'id'.$entityname.' = "'.implode('" OR id'.$entityname.' = "',$explode).'" ';
+                    $value = '';
+                    foreach ($entityname::find($str) as $index2 => $val)
+                    {
+                        if($index2 > 0){$value .= ','; }
+                        $value .= $val->Name;
+                    }
+
+                    $ea[$translatedindex]['url'] = false;
+                    $ea[$translatedindex]['value'] = $value;
+
+                }
+                
+ 
