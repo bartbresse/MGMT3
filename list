@@ -1,0 +1,370 @@
+<template>
+    <div v-if="data.length > 0">
+        <div id="filterheader">
+            <div class="filteractions">
+                <el-dropdown>
+                    <el-button size="mini">
+                        {{ lang['export'] }}<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item><a @click="printTable('print')">{{ lang['print'] }}</a></el-dropdown-item>
+                        <el-dropdown-item><a @click="printTable('csv')">{{ lang['csv'] }}</a></el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+                <router-link :to="'/add/'+entity+'/'+response.appdata">
+                    <el-button size="mini" type="primary">{{ response.structuurtable.singletitle }} {{ lang['toevoegen']
+                        }}
+                    </el-button>
+                </router-link>
+            </div>
+            <Filters :filters="response.filters" v-on:change="changeFilter"/>
+            <el-breadcrumb class="table-breadcrumb" separator="/">
+                <el-breadcrumb-item :to="{ path: '/' }">Contractmanager</el-breadcrumb-item>
+                <el-breadcrumb-item>{{ response.structuurtable.title }}</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="searchfield">
+            <el-input :placeholder="lang['zoeken']" v-on:change="changeFilter" v-model="search"
+                      class="input-with-select">
+                <el-button slot="append" icon="el-icon-search"></el-button>
+            </el-input>
+        </div>
+        <el-table id="list-el-table" v-if="Array.isArray(data) && data.length > 0" ref="multipleTable"
+                  :data="data"
+                  @sort-change="sortchange"
+                  selected>
+            <el-table-column fixed="left" min-width="110" width="110" align="center">
+                <template slot-scope="scope">
+                    <a v-if="scope.row.downloaduri" :href="scope.row.downloaduri" target="_blank">
+                        <el-button type="success" icon="el-icon-download" size="mini" circle></el-button>
+                    </a>
+                    <a v-if="scope.row.edituri" :href="scope.row.edituri">
+                        <el-button type="primary" icon="el-icon-edit" size="mini" circle></el-button>
+                    </a>
+                    <el-button v-if="scope.row.deleteuri" type="danger" size="mini"
+                               @click="deleteEntity(scope.row.deleteuri)"
+                               icon="el-icon-delete" circle></el-button>
+                </template>
+            </el-table-column>
+            <el-table-column v-for="(column,index) in response['columnData']" v-if="column.index == 0"
+                             :label="lang[column.label]"
+                             :min-width="response['columnData'][column.name].attr.minWidth"
+                             :width="response['columnData'][column.name].attr.width"
+                             :prop="column.name"
+                             sortable="custom">
+                <template slot-scope="scope"><a :href="scope.row.viewuri">{{ scope.row[column.name].value }}</a>
+                </template>
+            </el-table-column>
+            <el-table-column v-for="(column,index) in response['columnData']" v-if="column.index > 0"
+                             :label="lang[column.label]"
+                             :min-width="response['columnData'][column.name].attr.minWidth"
+                             :width="response['columnData'][column.name].attr.width"
+                             :prop="column.name"
+                             sort-change="sortchange"
+                             filter-change="filterchange"
+                             sortable="custom">
+                <template slot-scope="scope">
+                    <a v-if="scope.row[column.name] && scope.row[column.name].url" :href="scope.row[column.name].url">{{
+                        scope.row[column.name].value }}</a>
+                    <span v-if="scope.row[column.name] && !scope.row[column.name].url"><span v-html="scope.row[column.name].value"></span></span>
+                </template>
+            </el-table-column>
+            <el-table-column>
+                <template>&nbsp;&nbsp;&nbsp;&nbsp;</template>
+            </el-table-column>
+        </el-table>
+        <br/>
+        <p>Beschrijving: {{ response.structuurtable.description }}</p>
+    </div>
+</template>
+<script>
+
+
+    import axios from 'axios'
+    import RowFunctions from '@/components/mgmt/Rowfunctions'
+    import Filters from "./Filters";
+    import WindowIo from "./WindowIo";
+
+    export default {
+        name: 'List',
+        components: {Filters, RowFunctions, WindowIo},
+        beforeRouteUpdate(to, from, next) {
+            next();
+            this.response.filters = {};
+            this.getCourses(false);
+            var self = this;
+            self.entity = this.$route.params.entity;
+            self.urlcsv = process.env.API_URL + 'csv/' + self.entity;
+            this.getCourses(false);
+        },
+        data: function () {
+            return {
+                urlcsv: '',
+                entity: '',
+                data: {},
+                search: '',
+                sort: {},
+                response: [],
+                translations: []
+            }
+        },
+        mounted() {
+
+
+            this.getCourses(false);
+        },
+        created() {
+            this.getCourses(false);
+            var self = this;
+
+            self.entity = this.$route.params.entity;
+        },
+        methods: {
+            changeFilter() {
+                this.getCourses(this.search);
+            },
+            sortchange: function (obj) {
+
+                console.log(obj)
+
+
+                this.sort = {sortfield: obj.prop, sortorder: obj.order}
+                this.getCourses(this.search)
+            },
+            deleteEntity: function (url) {
+                var rf = new RowFunctions();
+                rf.deleteEntity(this, axios, process.env.API_URL + url);
+            },
+            getPostData(q) {
+                if (typeof(this.$route.params.entity2) !== 'undefined') {
+                    return {
+                        "isAddTo": this.selection,
+                        "baseentity": this.$route.params.entity2,
+                        "entityToAdd": this.$route.params.entity,
+                        "entitykey": this.$route.params.entitykey,
+                        "addToValue": this.$route.params.id,
+                        "token": document.cookie,
+                        "sort": this.sort,
+                        "q": q,
+                        "appdata": this.$route.params.appdata
+                    }
+                } else {
+                    return {
+                        "filters": this.response.filters,
+                        "sort": this.sort,
+                        "token": document.cookie,
+                        "q": q,
+                        "appdata": this.$route.params.appdata
+                    };
+                }
+            },
+            getCourses: function (q) {
+                var self = this;
+                if (typeof(this.$route.params.entity) !== 'undefined') {
+                    var extension = '/' + this.$route.params.entity;
+                } else {
+                    var extension = this.$route.path;
+                }
+                this.$store.dispatch('post', {
+                    url: 'mgmt/get' + extension,
+                    data: this.getPostData(q)
+                }).then(function (response) {
+                    if (response.data.result == 'expired') {
+                        window.location.href = 'http://account.barnworks.nl';
+                    }
+                    self.response = response.data
+
+                    console.log(response.data['columnData'])
+
+                    self.data = response.data['data'];
+                    self.lang = response.data['lang'];
+                }).catch(function (error) {
+                    console.log(error)
+                })
+            },
+            printTable(type) {
+                var windowio = new WindowIo();
+                windowio.open('POST', this.response.backend + '/export/' + type + '/' + this.$route.params.entity + '/' + this.response.appdata, this.getPostData(this.search), '_blank')
+            }
+        }
+    }
+</script>
+<style>
+    .table-breadcrumb {
+        float: left;
+        position: relative;
+        top: 26px;
+        padding-left: 10px;
+        width: auto;
+    }
+
+    #filterheader {
+        position: fixed;
+        z-index: 400;
+        width: 90vw;
+        background-color: #fff;
+        margin-top: -18px;
+    }
+
+    .filteractions {
+        position: fixed;
+        right: 20px;
+        margin-top: 17px;
+    }
+
+    .el-table__header-wrapper {
+        width: inherit !important;
+    }
+
+    .el-table__body-wrapper {
+        width: inherit !important;
+    }
+
+    .el-table .cell, .el-table th div, .el-table--border td:first-child .cell, .el-table--border th:first-child .cell {
+        padding-left: 0px;
+    }
+
+    .el-table .cell, .el-table th div {
+        padding-right: 2px;
+    }
+
+    .el-table .cell {
+        -webkit-box-sizing: inherit !important;
+        box-sizing: inherit !important;
+        white-space: inherit !important;
+        word-break: inherit !important;
+        line-height: inherit !important;
+    }
+
+    .el-table td, .el-table th {
+        padding: 2px 5px;
+    }
+
+    .el-table--scrollable-x .el-table__body-wrapper {
+        overflow-x: inherit !important;
+    }
+
+    .el-table__body-wrapper {
+        overflow: inherit !important;
+        position: relative !important;
+    }
+
+    table {
+        font-size: 12px !important;
+    }
+
+    .input-with-select .el-input-group__append {
+        background-color: #fff;
+        border: none;
+        border-right: 1px solid #dcdfe6;
+        border-radius: 0px;
+    }
+
+    .el-table .cell, .el-table th div {
+        text-overflow: unset !important;
+    }
+
+    .el-table__column-filter-trigger {
+        display: none !important;
+    }
+
+    .searchfield {
+        position: fixed;
+        height: 60px;
+        left: 25vw;
+        width: 50vw;
+        top: 0px;
+        z-index: 400;
+    }
+
+    .el-input__inner {
+        border-radius: 0px !important;
+    }
+
+    .searchfield input {
+        height: 60px;
+        border-bottom: 0px;
+        border-top: 0px;
+    }
+
+    #list-el-table {
+        position: absolute !important;
+        left: 0px !important;
+        top: 16vh !important;
+        left: 11vw;
+        margin-right: 30px;
+    }
+
+    #list-el-table {
+        position: absolute !important;
+        left: 220px !important;
+        overflow: inherit !important;
+        top: 11vh;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        /* width: 100%; */
+        left: 15vw !important;
+        /* max-width: 100%; */
+        font-size: 14px;
+        color: #606266;
+        margin-right: 30px;
+    }
+
+    table {
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+        flex: 1;
+        width: 100%;
+        max-width: 100%;
+        background-color: #fff;
+        font-size: 14px;
+        color: #606266;
+        text-align: left;
+        z-index: 0;
+    }
+
+    thead {
+        color: #909399;
+        font-weight: 500;
+    }
+
+    td, th {
+        border-bottom: 1px solid #ebeef5;
+        padding: 12px 0;
+    }
+
+    .vue-title {
+
+        margin-bottom: 10px;
+    }
+
+    .glyphicon.glyphicon-eye-open {
+        width: 16px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .pagination li {
+        display: inline-block;
+        margin: 0 3px;
+    }
+
+    .el-form {
+        max-width: 500px;
+    }
+
+    .el-form-item {
+        margin-bottom: 0;
+    }
+
+    .el-date-editor.el-input,
+    .el-date-editor.el-input__inner,
+    .el-select {
+        width: 100%;
+    }
+
+</style>
